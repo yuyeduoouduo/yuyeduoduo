@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"name": "imgs",
+			"path": "C:/Users/ASUS/Desktop/02/demo/imgs"
+		},
+		{
+			"name": "my front project",
+			"path": "."
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "my front project"
+	}
+}
