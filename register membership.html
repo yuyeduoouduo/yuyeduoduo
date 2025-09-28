@@ -1,0 +1,227 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+        .vertification-code{
+            display:flex;
+            align-items:center;
+        }
+         #refreshBtn {
+            padding: 3px 8px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: inline-block;
+      width: 100px;
+    }
+     textarea {
+      vertical-align: top;
+    }
+    /* 垂直对齐 */
+
+    </style>
+  </head>
+  <body>
+    <p style="color: blue">欢迎注册会员</p>
+    <form type="data.html" method="post">
+      <div>
+        <label for="phone"><b>手机号码:</b> </label>
+        <input type="text" id="phone" placeholder="11位手机号" required>
+        <span style="color:rgb(235, 24, 24)">必填</span>
+      </div>
+      <div>
+        <label for="pwd"><b>创建密码:</b></label>
+        <input type="password" id="pwd" placeholder="8位密码" maxlength="8" required>
+        <span style="color:rgb(235, 24, 24)">
+            必填
+        </span>
+      </div>
+      <div>
+        <label for="email"><b>注册邮箱:</b></label>
+        <input type="email" placeholder="例如wustzz@sina.com" required>
+        <span style="color:rgb(235, 24, 24)">
+            必填
+        </span>
+      </div>
+      <div>
+        <!-- <label for="examin code"><b>验证码:</b></label>
+        <input type="text" id="examine code">
+         <span id="vertificationCode">UJFQ</span> -->
+        <!-- <img src="验证码图片.jpg" alt="刷新验证码" id="refreshCode" style="width:20px;height:20px;"> -->
+        <!-- <button></button> -->
+         <!-- <button type="button" id="refreshBtn">刷新</button> 刷新按钮 --> 
+         <!-- 刷新验证码这一块的代码还要再看一下
+           -->
+         <div>
+       <label for="code"><b>验证码:</b></label>
+       <input type="text" id="code">
+       <span id="verificationCode">UJFQ</span>
+       <img src="imgs\R_C.jpg" alt="刷新验证码" id="refreshCode" style="width:20px;height:20px;">
+     </div>
+    </div>
+      <div>
+        <label ><b>性别:</b></label>
+        <input type="radio" name="sex" value="male" checked>男
+        <input type="radio" name="sex" value="female">女
+        <!-- </label> -->
+      </div>
+      <div>
+        <label for="birthday"><b>生日:</b>
+        </label>
+        <input type="date" id="birthday">
+      </div>
+      <div>
+<label for="age"><b>年龄:</b></label>
+<input type="text" id="age">
+      </div>
+      <div>
+        <label for="hometown"><b>籍贯:</b></label>
+        <select name="province" id="province">
+            <option value="hubei">湖北省</option>
+            <option value="hunan">湖南省</option>
+            <option value="shandong">山东省</option>
+            <option value="shanxi">山西省</option>
+
+        </select>
+        <select name="city" id="city" size="1">
+            <option value="yichang">宜昌市</option>
+            <option value="changsha">长沙市</option>
+            <option value="yantai">烟台市</option>
+            <option value="taiyuan">太原市</option>
+        </select>
+      </div>
+      <div>
+        <b>月薪:</b>
+        <input type="range" id="score" name="score" min="0.0" max="1000000" step="10" value="5000">
+        <span id="msg"></span>
+      </div>
+      <div>
+        <label for="hobby"><b>个人爱好:</b></label>
+        <input type="checkbox" name="like" value="sing">唱歌
+        <input type="checkbox" id="run" value="like">跑步
+        <input type="checkbox" id="swim" value="like">游泳
+      </div>
+    
+      <!-- <div> -->
+        <!-- <label for="photo"><b>个人照片:</b></label> -->
+      <!-- </div> -->
+      <!-- <h2>上传你的头像</h2> -->
+    <!-- 图片上传表单 -->
+    <!-- <form id="uploadForm"> -->
+      <!-- 文件选择框：只允许图片 -->
+      <label for="avatar"><b>个人照片:</b></label>
+      <input type="file" id="avatar" name="avatar" accept="image/*" required /> <br /><br />
+      <!-- 上传按钮 -->
+      <!-- <button type="submit">选择文件</button> -->
+      <!-- <button type="button" onclick="resetForm()">重置</button> -->
+    <!-- </form> -->
+    <!-- 图片预览区域 -->
+    <div id="preview" style="margin-top: 20px"> 
+      <p>图片预览：</p>
+      <img id="previewImage" src="" alt="预览" style="max-width: 300px; max-height: 300px; display: none; border: 1px solid #ccc" />
+      <p id="noImage">暂无图片</p> 
+    </div>
+
+    
+    <div id="status"></div>
+
+    <!-- </form> -->
+    <div class="form-group">
+      <label for="resume"><b>个人简介:</b></label>
+      <textarea name="intro" id="resume" cols="50" rows="10"></textarea>
+      </div>
+      <div><button type="submit">提交</button>
+      <button type="reset">重填</button></div>
+      
+    <!-- </div> -->
+  </form>
+    <script>
+var msg = document.getElementById("msg"); // 根据id值找到span元素
+window.onload = function () { 
+msg.innerHTML = document.getElementById("score").value; // 获取区间域初始value值
+}
+document.getElementById("score").onchange = function () { 
+msg.innerHTML = this.value; // 将当前区间域的value作为span元素的内容
+}
+
+const refreshCode = document.getElementById('refreshCode');
+     const verificationCode = document.getElementById('verificationCode');
+     const codes = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+     function generateCode() {
+       let code = '';
+       for (let i = 0; i < 4; i++) {
+         code += codes[Math.floor(Math.random() * codes.length)];
+       }
+       return code;
+     }
+     refreshCode.addEventListener('click', function () {
+       verificationCode.textContent = generateCode();
+     });
+ const form = document.getElementById("uploadForm");
+      const fileInput = document.getElementById("avatar");
+      const previewImage = document.getElementById("previewImage");
+      const noImage = document.getElementById("noImage");
+      const statusDiv = document.getElementById("status");
+      // 当用户选择文件时，预览图片
+      fileInput.addEventListener("change", function () {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+
+          reader.onload = function (e) {
+            previewImage.src = e.target.result; // 设置图片源
+            previewImage.style.display = "block";
+            noImage.style.display = "none";
+          };
+
+          reader.readAsDataURL(file); // 读取为 Data URL
+        } else {
+          clearPreview();
+        }
+      });
+
+      // 提交表单（模拟上传）
+      form.addEventListener("submit", function (e) {
+        e.preventDefault(); // 阻止默认提交（防止页面刷新）
+        const file = fileInput.files[0];
+        if (!file) {
+          statusDiv.innerHTML = '<span style="color: red;">请先选择图片！</span>';
+          return;
+        }
+        // 模拟上传过程
+        statusDiv.innerHTML = `正在上传图片：${file.name}（${(file.size / 1024).toFixed(1)} KB）...`;
+
+        // 模拟网络延迟1.5秒
+        setTimeout(() => {
+          statusDiv.innerHTML = `<span style="color: green;">✅ 图片 "${file.name}" 上传成功！</span>`;
+        }, 1500);
+      });
+
+      // 重置表单和预览
+      function resetForm() {
+        form.reset();
+        clearPreview();
+        statusDiv.innerHTML = "";
+      }
+
+      // 清除预览
+      function clearPreview() {
+        previewImage.src = "";
+        previewImage.style.display = "none";
+        noImage.style.display = "block";
+      }
+</script>
+  </body>
+</html>
