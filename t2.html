@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QQ音乐仿页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header img {
+            height: 40px;
+        }
+        .section {
+            padding: 20px;
+            background-color: #fff;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .tab {
+            margin: 0 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .tab.active {
+            color: green;
+            border-bottom: 2px solid green;
+        }
+        .item-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .item {
+            width: 18%;
+            margin-bottom: 20px;
+        }
+        .item img {
+            width: 100%;
+            border-radius: 8px;
+        }
+        .item p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .item-title {
+            font-weight: bold;
+        }
+        .item-artist, .item-plays {
+            color: #888;
+        }
+        .item-checkbox {
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="https://example.com/qq-music-logo.png" alt="QQ音乐">
+    </div>
+
+    <!-- 歌单推荐 -->
+    <div class="section">
+        <h2 class="section-title">歌单推荐</h2>
+        <div class="tabs">
+            <span class="tab active">为你推荐</span>
+            <span class="tab">运动</span>
+            <span class="tab">网络歌曲</span>
+            <span class="tab">思念</span>
+            <span class="tab">官方歌单</span>
+            <span class="tab">情歌</span>
+        </div>
+        <div class="item-list" id="recommend-list">
+            <!-- 歌单推荐项将由JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <!-- 新歌首发 -->
+    <div class="section">
+        <h2 class="section-title">新歌首发</h2>
+        <div class="tabs">
+            <span class="tab">播放全部</span>
+            <span class="tab active">最新</span>
+            <span class="tab">内地</span>
+            <span class="tab">港台</span>
+            <span class="tab">欧美</span>
+            <span class="tab">韩国</span>
+            <span class="tab">日本</span>
+        </div>
+        <div class="item-list" id="new-songs-list">
+            <!-- 新歌首发项将由JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <!-- MV -->
+    <div class="section">
+        <h2 class="section-title">MV</h2>
+        <div class="tabs">
+            <span class="tab active">精选</span>
+            <span class="tab">内地</span>
+            <span class="tab">韩国</span>
+            <span class="tab">港台</span>
+            <span class="tab">欧美</span>
+            <span class="tab">日本</span>
+        </div>
+        <div class="item-list" id="mv-list">
+            <!-- MV项将由JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <script>
+        // 示例数据
+        const recommendData = [
+            { title: '翻唱女神J.Fla | 只唱你最爱的旋律', artist: 'J.Fla', plays: '891.4万', image: 'https://via.placeholder.com/150' },
+            // 添加更多数据...
+        ];
+
+        const newSongsData = [
+            { title: 'Sabotage', artist: 'Bebe Rexha', plays: '02:56', image: 'https://via.placeholder.com/150' },
+            // 添加更多数据...
+        ];
+
+        const mvData = [
+            { title: '向宿命挥拳的人（《新斗罗大陆》...', artist: '阿云嘎', plays: '8002', image: 'https://via.placeholder.com/150' },
+            // 添加更多数据...
+        ];
+
+        // 动态生成歌单推荐项
+        function generateItems(data, elementId) {
+            const container = document.getElementById(elementId);
+            data.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'item';
+                itemElement.innerHTML = `
+                    <img src="${item.image}" alt="${item.title}">
+                    <p class="item-title">${item.title}</p>
+                    <p class="item-artist">${item.artist}</p>
+                    <p class="item-plays">播放量: ${item.plays}</p>
+                    <input type="checkbox" class="item-checkbox">
+                `;
+                container.appendChild(itemElement);
+            });
+        }
+
+        // 初始化页面时生成所有项
+        window.onload = function() {
+            generateItems(recommendData, 'recommend-list');
+            generateItems(newSongsData, 'new-songs-list');
+            generateItems(mvData, 'mv-list');
+        };
+    </script>
+</body>
+</html>

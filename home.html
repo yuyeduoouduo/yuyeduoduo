@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QQ音乐 - 歌单推荐</title>
+    <style>
+      /* 引入基础样式（整合basic.css核心配置） */
+      :root {
+        --primary-color: #31c27c; /* 主色调：QQ音乐绿 */
+      }
+      body {
+        margin: 0;
+        /* // background: #f5f5f5; */
+        font-family: Microsoft Yahei;
+        font-size: 15px;
+        min-width: 1000px;
+        background: linear-gradient(to bottom, #fafafa, #f5f5f5, #f0f0f0);
+        /* 让背景图片（这里渐变相当于背景图片）不重复，覆盖整个页面 */
+        background-repeat: no-repeat;
+        background-size: cover;
+        /* 确保页面内容能撑满整个视口高度，这样背景也能完整显示 */
+        min-height: 100vh;
+        margin: 0; /* 清除默认的margin，避免出现空白 */
+      }
+      .background-layers {
+        position: relative;
+      }
+
+      /* 第一层背景 - 歌单推荐 */
+      .layer-1 {
+        background: #fafafa;
+        padding: 60px 60px;
+        position: relative;
+        overflow: hidden;
+      }
+      /* 第二层背景 - 新歌首发 */
+      .layer-2 {
+        background: #f5f5f5;
+        padding: 60px 60px;
+        position: relative;
+      }
+      /* 第三层背景 - MV */
+      .layer-3 {
+        background: #f0f0f0;
+        padding: 60px 60px;
+        position: relative;
+      }
+      a {
+        text-decoration: none;
+        color: #000;
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 30px;
+        margin-bottom: 20px;
+      }
+
+      /* 头部样式（基于music.css） */
+      header {
+        height: 90px;
+        background: white;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+      .header-inner {
+        /* width: 1200px; */
+        margin: auto;
+        display: flex;
+        align-items: center;
+      }
+      .logo {
+        width: 120px;
+        height: 40px;
+        background: url("qqmusic.png") no-repeat center;
+        background-size: contain;
+        margin-right: 40px;
+      }
+      .nav-list {
+        display: flex;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .nav-item {
+        margin-right: 30px;
+        font-size: 16px;
+        font-weight: 500;
+      }
+      .nav-item a:hover {
+        color: var(--primary-color);
+      }
+      /* 标签筛选样式（基于music.css） */
+      main {
+        /* width: 1200px; */
+        margin: 30px auto;
+      }
+      .tag-list {
+        text-align: center;
+        margin: 20px 0;
+      }
+      .tag-item {
+        display: inline-block;
+        padding: 0 12px;
+        margin-right: 24px;
+        line-height: 28px;
+        border-radius: 14px;
+        font-size: 15px;
+        color: #000;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .tag-active {
+        background: var(--primary-color);
+        color: white;
+      }
+      .tag-item:not(.tag-active):hover {
+        color: var(--primary-color);
+        background: rgba(49, 194, 124, 0.1);
+      }
+      /* 歌单列表样式（基于music.css网格布局） */
+      .playlist {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); /* 5列等宽布局 */
+        grid-auto-rows:minmax(100px,auto);
+        gap: 45px 15px;
+        margin-bottom: 60px;
+      }
+      .cover-wrap {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        aspect-ratio: 1/1; /* 保持封面正方形 */
+        cursor: pointer;
+      }
+      .cover-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: all 0.75s ease;
+      }
+      .cover-mask {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
+      .cover-play {
+        position: absolute;
+        right: 15px;
+        bottom: 15px;
+        width: 40px;
+        height: 40px;
+        background: url("icon_play.png") no-repeat center;
+        background-size: contain;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.5s ease;
+      }
+      .cover-wrap:hover .cover-img {
+        transform: scale(1.07); /* hover放大效果 */
+      }
+      .cover-wrap:hover .cover-mask {
+        opacity: 1;
+      }
+      .cover-wrap:hover .cover-play {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .album-info {
+        padding-top: 12px;
+      }
+      .album-title {
+        font-size: 14px;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis; /* 文字溢出省略 */
+        margin-bottom: 8px;
+        transition: color 0.3s;
+      }
+      .album-title:hover {
+        color: var(--primary-color);
+      }
+      .album-meta {
+        font-size: 12px;
+        color: #999;
+        line-height: 1.5;
+      }
+      .album-meta span:hover {
+        color: var(--primary-color);
+        cursor: pointer;
+      }
+
+      .controls-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        position: relative;
+        min-height: 80px;
+      }
+
+      .play-all-btn {
+        display: flex;
+        position: absolute;
+        top: 20px;
+        align-items: center;
+        background: #eee;
+        color: white;
+        border: none;
+        border: 2px solid #eee;
+        padding: 5px 15px;
+        font-size: 15px;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 2px 6px rgba(10, 10, 10, 0.3);
+        white-space: nowrap;
+        left: 0;
+      }
+
+      .play-all-btn:hover {
+        background: #2aac6f;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(49, 194, 124, 0.4);
+      }
+
+      .play-all-btn:active {
+        transform: translateY(0);
+      }
+
+      .play-icon {
+        display: flex;
+        color: #000;
+      }
+      .play-icon img {
+        display: flex;
+        scale: 0.8;
+        align-items: center;
+      }
+
+      .tag-list2 {
+        position: absolute;
+        right: 150px;
+        top: 20px;
+      }
+
+      .playlist-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill,minmax(300px,1fr));
+        grid-auto-rows:minmax(100px,auto) ;
+        gap: 15px;
+        margin-top: 1.5rem;
+      }
+
+      .song-card {
+        background: #f5f5f5;
+        /* border-radius: 8px; */
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+        /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+      }
+
+      .song-card:hover {
+        transform: translateY(-3px);
+        background: #f9f9f9;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .picture img {
+        height: 60px;
+        width: 60px;
+        /* border-radius: 6px; */
+        object-fit: cover;
+        flex-shrink: 0;
+      }
+
+      .song-info {
+        /* flex: 1; */
+        display: grid;
+        /* flex-direction: column; */
+        gap: 4px;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .song-title {
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 0;
+      }
+
+      .song-artist {
+        color: #666;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 0;
+      }
+
+      .song-duration {
+        color: #999;
+        font-size: 12px;
+        white-space: nowrap;
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+
+      .playing-indicator {
+        position: absolute;
+        top: 50%;
+        left: 5px;
+        transform: translateY(-50%);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #31c27c;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .song-card.playing .playing-indicator {
+        opacity: 1;
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: translateY(-50%) scale(0.95);
+          box-shadow: 0 0 0 0 rgba(49, 194, 124, 0.7);
+        }
+        70% {
+          transform: translateY(-50%) scale(1);
+          box-shadow: 0 0 0 6px rgba(49, 194, 124, 0);
+        }
+        100% {
+          transform: translateY(-50%) scale(0.95);
+          box-shadow: 0 0 0 0 rgba(49, 194, 124, 0);
+        }
+      }
+
+      .tag-list3 {
+        display: flex;
+        justify-content: center;
+        right: 150px;
+        top: 20px;
+      }
+
+      .playlist-grid2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
+        grid-auto-rows: minmax(100px,auto);
+        gap: 15px;
+        margin-top: 1.5rem;
+      }
+
+      .song-card2 {
+        background: #f5f5f5;
+        /* border-radius: 8px; */
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+        /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        position: relative;
+      }
+
+      .song-card2:hover {
+        transform: translateY(-3px);
+        background: #f9f9f9;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .picture2 img {
+        height: 100px;
+        width: 200px;
+        /* border-radius: 6px; */
+        object-fit: cover;
+        flex-shrink: 0;
+      }
+
+      .song-info2 {
+        /* flex: 1; */
+        display: grid;
+        /* flex-direction: column; */
+        gap: 4px;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .song-title2 {
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 0;
+      }
+
+      .song-artist2 {
+        color: #666;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 0;
+      }
+
+      .song-duration2 {
+        color: #999;
+        font-size: 12px;
+        white-space: nowrap;
+        /* margin-left: auto; */
+        flex-shrink: 0;
+      }
+
+      .playing-indicator {
+        position: absolute;
+        top: 50%;
+        left: 5px;
+        transform: translateY(-50%);
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #31c27c;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      .song-card.playing .playing-indicator {
+        opacity: 1;
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: translateY(-50%) scale(0.95);
+          box-shadow: 0 0 0 0 rgba(49, 194, 124, 0.7);
+        }
+        70% {
+          transform: translateY(-50%) scale(1);
+          box-shadow: 0 0 0 6px rgba(49, 194, 124, 0);
+        }
+        100% {
+          transform: translateY(-50%) scale(0.95);
+          box-shadow: 0 0 0 0 rgba(49, 194, 124, 0);
+        }
+      }
+      footer {
+        margin-top: 3rem;
+        text-align: center;
+        color: #666;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 头部导航 -->
+    <header>
+      <div class="header-inner">
+        <img src="imgs/qqmusic.png" />
+      </div>
+    </header>
+
+    <!-- 主内容区 -->
+    <div class="background-layers">
+      <div class="layer-1">
+        <h1>歌单推荐</h1>
+        <!-- 标签筛选栏 -->
+        <div class="tag-list">
+          <span class="tag-item tag-active">为你推荐</span>
+          <span class="tag-item">歌单推荐</span>
+          <span class="tag-item">运动</span>
+          <span class="tag-item">网络歌曲</span>
+          <span class="tag-item">思念</span>
+          <span class="tag-item">官方歌单</span>
+          <span class="tag-item">情歌</span>
+        </div>
+
+        <!-- 推荐歌单列表 -->
+        <div class="playlist">
+          <!-- 歌单1 -->
+          <div class="album-item">
+            <div class="cover-wrap">
+              <img
+                src="屏幕截图 2025-10-09 001829.png"
+                alt="翻唱女神J.Ao"
+                class="cover-img"
+              />
+              <div class="cover-mask"></div>
+              <div class="cover-play"></div>
+            </div>
+            <div class="album-info">
+              <div class="album-title">翻唱女神J.Ao|只唱你最爱的旋律</div>
+              <div class="album-meta">
+                <span>翻唱女神J.Ao</span>
+                <div>播放量: 891.4万</div>
+              </div>
+            </div>
+          </div>
+          <!-- 歌单2 -->
+          <div class="album-item">
+            <div class="cover-wrap">
+              <img src="imgs\image.png" alt="古风女声控" class="cover-img" />
+              <div class="cover-mask"></div>
+              <div class="cover-play"></div>
+            </div>
+            <div class="album-info">
+              <div class="album-title">古风女声控,优美旋律为你而来</div>
+              <div class="album-meta">
+                <span>古风精选</span>
+                <div>播放量: 171.2万</div>
+              </div>
+            </div>
+          </div>
+          <!-- 歌单3 -->
+          <div class="album-item">
+            <div class="cover-wrap">
+              <img
+                src="屏幕截图 2025-10-09 001842.png"
+                alt="想开一家早餐店"
+                class="cover-img"
+              />
+              <div class="cover-mask"></div>
+              <div class="cover-play"></div>
+            </div>
+            <div class="album-info">
+              <div class="album-title">想开一家早餐店,叫早点见面</div>
+              <div class="album-meta">
+                <span>治愈系</span>
+                <div>播放量: 52.5万</div>
+              </div>
+            </div>
+          </div>
+          <!-- 歌单4 -->
+          <div class="album-item">
+            <div class="cover-wrap">
+              <img
+                src="屏幕截图 2025-10-08 124112.png"
+                alt="好评999+英文歌"
+                class="cover-img"
+              />
+              <div class="cover-mask"></div>
+              <div class="cover-play"></div>
+            </div>
+            <div class="album-info">
+              <div class="album-title">好评999+英文歌!轻松解压100%</div>
+              <div class="album-meta">
+                <span>英文精选</span>
+                <div>播放量: 12391.0万</div>
+              </div>
+            </div>
+          </div>
+          <!-- 歌单5 -->
+          <div class="album-item">
+            <div class="cover-wrap">
+              <img
+                src="imgs\屏幕截图 2025-10-08 124235.png"
+                alt="书房背景乐"
+                class="cover-img"
+              />
+              <div class="cover-mask"></div>
+              <div class="cover-play"></div>
+            </div>
+            <div class="album-info">
+              <div class="album-title">书房背景乐 沉浸于字里行间的时光</div>
+              <div class="album-meta">
+                <span>轻音乐</span>
+                <div>播放量: 303.3万</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="layer-2">
+        <h1>新歌首发</h1>
+        <div class="controls-row">
+          <button class="play-all-btn">
+            <div class="play-icon">
+              <img src="icon_play.png" alt="播放器" />
+              播放全部
+            </div>
+          </button>
+          <div class="tag-list2">
+            <span class="tag-item tag-active">最新</span>
+            <span class="tag-item">内地</span>
+            <span class="tag-item">港台</span>
+            <span class="tag-item">欧美</span>
+            <span class="tag-item">韩国</span>
+            <span class="tag-item">日本</span>
+          </div>
+        </div>
+
+        <div class="playlist-grid">
+          <!-- 修改后的歌曲卡片结构 -->
+          <div class="song-card playing">
+            <div class="playing-indicator"></div>
+            <div class="picture">
+              <img src="imgs\屏幕截图 2025-10-08 203405.png" alt="image" />
+            </div>
+            <div class="song-info">
+              <div class="song-title">Sabotage</div>
+              <div class="song-artist">Bebe Rexha</div>
+            </div>
+            <div class="song-duration">02:56</div>
+          </div>
+
+          <div class="song-card">
+            <div class="playing-indicator"></div>
+            <div class="picture">
+              <img src="imgs\屏幕截图 2025-10-08 211409.png" alt="image" />
+            </div>
+            <div class="song-info">
+              <div class="song-title">如果人人爱音乐</div>
+              <div class="song-artist">张蔷</div>
+            </div>
+            <div class="song-duration">03:46</div>
+          </div>
+
+          <div class="song-card">
+            <div class="playing-indicator"></div>
+            <div class="picture">
+              <img src="imgs\屏幕截图 2025-10-08 211911.png" alt="image" />
+            </div>
+            <div class="song-info">
+              <div class="song-title">你就不要想起我</div>
+              <div class="song-artist">RISE赵磊</div>
+            </div>
+            <div class="song-duration">04:30</div>
+          </div>
+
+          <div class="song-card">
+            <div class="playing-indicator"></div>
+            <div class="picture">
+              <img src="imgs\屏幕截图 2025-10-08 211953.png" alt="image" />
+            </div>
+            <div class="song-info">
+              <div class="song-title">软肋</div>
+              <div class="song-artist">李宇春</div>
+            </div>
+            <div class="song-duration">04:17</div>
+          </div>
+
+          <div class="song-card">
+            <div class="playing-indicator"></div>
+            <div class="picture">
+              <img src="imgs\屏幕截图 2025-10-08 212042.png" alt="image" />
+            </div>
+            <div class="song-info">
+              <div class="song-title">一爱如故《长歌行》电视剧插曲</div>
+              <div class="song-artist">摩登兄弟刘宇宁</div>
+            </div>
+            <div class="song-duration">03:55</div>
+          </div>
+
+          <div class="song-card">
+            <div class="playing-indicator"></div>
+            <div class="picture">
+              <img src="imgs\屏幕截图 2025-10-08 212153.png" alt="image" />
+            </div>
+            <div class="song-info">
+              <div class="song-title">向宿命挥拳的人（新斗罗大娃）</div>
+              <div class="song-artist">阿云嘎</div>
+            </div>
+            <div class="song-duration">04:00</div>
+          </div>
+
+          <div class="song-card">
+            <div class="playing-indicator"></div>
+            <div class="picture">
+              <img src="imgs\屏幕截图 2025-10-08 212241.png" alt="image" />
+            </div>
+            <div class="song-info">
+              <div class="song-title">花好月圆</div>
+              <div class="song-artist">周迅</div>
+            </div>
+            <div class="song-duration">02:34</div>
+          </div>
+
+          <div class="song-card">
+            <div class="playing-indicator"></div>
+            <div class="picture">
+              <img src="imgs\屏幕截图 2025-10-08 212333.png" alt="image" />
+            </div>
+            <div class="song-info">
+              <div class="song-title">
+                Renegades《浪客剑心 最终章》电影主题曲
+              </div>
+              <div class="song-artist">ONE OK ROCK</div>
+            </div>
+            <div class="song-duration">04:04</div>
+          </div>
+
+          <div class="song-card">
+            <div class="playing-indicator"></div>
+            <div class="picture">
+              <img src="imgs\屏幕截图 2025-10-08 212502.png" alt="image" />
+            </div>
+            <div class="song-info">
+              <div class="song-title">驯化者</div>
+              <div class="song-artist">
+                陈俊豪/陈誉庚/TGM-姜京佐/刘冠佑/罗一舟/唐九洲/G.G张思源
+              </div>
+            </div>
+            <div class="song-duration">02:34</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="layer-3">
+        <h1>MV</h1>
+        <!-- <div class="controls-row"> -->
+
+        <div class="tag-list3">
+          <span class="tag-item tag-active">精选</span>
+          <span class="tag-item">内地</span>
+          <span class="tag-item">韩国</span>
+          <span class="tag-item">港台</span>
+          <span class="tag-item">欧美</span>
+          <span class="tag-item">日本</span>
+        </div>
+        <!-- </div> -->
+
+        <div class="playlist-grid2">
+          <!-- 修改后的歌曲卡片结构 -->
+          <div class="song-card2 playing">
+            <div class="playing-indicator"></div>
+            <div class="picture2">
+              <img src="屏幕截图 2025-10-08 235947.png" alt="image" />
+            </div>
+            <div class="song-info2">
+              <div class="song-title2">
+                向宿命挥拳的人 (《新斗罗大陆》手游戴沐白角色曲)
+              </div>
+              <div class="song-artist2">阿云嘎</div>
+            </div>
+            <div class="song-duration2">
+              <img src="icon_listen.png" alt="mv" /> 8002
+            </div>
+          </div>
+
+          <div class="song-card2">
+            <div class="playing-indicator"></div>
+            <div class="picture2">
+              <img src="屏幕截图 2025-10-08 234145.png" alt="image" />
+            </div>
+            <div class="song-info2">
+              <div class="song-title2">雨</div>
+              <div class="song-artist2">Sunnee杨芸晴</div>
+            </div>
+            <div class="song-duration2">
+              <img src="icon_listen.png" alt="mv" /> 3334
+            </div>
+          </div>
+
+          <div class="song-card2">
+            <div class="playing-indicator"></div>
+            <div class="picture2">
+              <img src="屏幕截图 2025-10-08 235956.png" alt="image" />
+            </div>
+            <div class="song-info2">
+              <div class="song-title2">一爱如故 (《长歌行》电视剧插曲)</div>
+              <div class="song-artist2">摩登兄弟刘宇宁</div>
+            </div>
+            <div class="song-duration2">
+              <img src="icon_listen.png" alt="mv" /> 4.2万
+            </div>
+          </div>
+
+          <div class="song-card2">
+            <div class="playing-indicator"></div>
+            <div class="picture2">
+              <img src="屏幕截图 2025-10-08 234156.png" alt="image" />
+            </div>
+            <div class="song-info2">
+              <div class="song-title2">我很好骗</div>
+              <div class="song-artist2">动力火车</div>
+            </div>
+            <div class="song-duration2">
+              <img src="icon_listen.png" alt="mv" /> 1.1万
+            </div>
+          </div>
+
+          <div class="song-card2">
+            <div class="playing-indicator"></div>
+            <div class="picture2">
+              <img src="屏幕截图 2025-10-08 234201.png" alt="image" />
+            </div>
+            <div class="song-info2">
+              <div class="song-title2">造梦时学会飞行 (《声梦传奇》主题曲)</div>
+              <div class="song-artist2">TVB</div>
+            </div>
+            <div class="song-duration2">
+              <img src="icon_listen.png" alt="mv" /> 1483
+            </div>
+          </div>
+
+          <div class="song-card2">
+            <div class="playing-indicator"></div>
+            <div class="picture2">
+              <img src="屏幕截图 2025-10-08 234207.png" alt="image" />
+            </div>
+            <div class="song-info2">
+              <div class="song-title2">What's Wrong With Me (Punk Version)</div>
+              <div class="song-artist2">Lil Ghost小鬼</div>
+            </div>
+            <div class="song-duration2">
+              <img src="icon_listen.png" alt="mv" /> 20.2万
+            </div>
+          </div>
+
+          <div class="song-card2">
+            <div class="playing-indicator">
+              What's Wrong With Me (Punk Version)
+            </div>
+            <div class="picture2">
+              <img src="屏幕截图 2025-10-08 234216.png" alt="image" />
+            </div>
+            <div class="song-info2">
+              <div class="song-title2">
+                Let's Party (《和平精英》2周年庆派对邀请曲)
+              </div>
+              <div class="song-artist2">吴宣仪</div>
+            </div>
+            <div class="song-duration2">
+              <img src="icon_listen.png" alt="mv" /> 6.6万
+            </div>
+          </div>
+
+          <div class="song-card2">
+            <div class="playing-indicator"></div>
+            <div class="picture2">
+              <img src="屏幕截图 2025-10-08 234228.png" alt="image" />
+            </div>
+            <div class="song-info2">
+              <div class="song-title2">鋼の羽根</div>
+              <div class="song-artist2">RADWIMPS</div>
+            </div>
+            <div class="song-duration2">
+              <img src="icon_listen.png" alt="mv" /> 2861
+            </div>
+          </div>
+
+          <div class="song-card2">
+            <div class="playing-indicator"></div>
+            <div class="picture2">
+              <img src="屏幕截图 2025-10-08 234238.png" alt="image" />
+            </div>
+            <div class="song-info2">
+              <div class="song-title2">에필로그 (epilogue)</div>
+              <div class="song-artist2">IU</div>
+            </div>
+            <div class="song-duration2">
+              <img src="icon_listen.png" alt="mv" /> 7955
+            </div>
+          </div>
+          <div class="song-card2">
+            <div class="playing-indicator"></div>
+            <div class="picture2">
+              <img src="屏幕截图 2025-10-08 234244.png" alt="image" />
+            </div>
+            <div class="song-info2">
+              <div class="song-title2">圭贤《Coffee》MV</div>
+              <div class="song-artist2">圭贤</div>
+            </div>
+            <div class="song-duration2">
+              <img src="icon_listen.png" alt="mv" /> 1.5万
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部 -->
+    <footer>
+      <div>QQ音乐 © 2025 版权所有</div>
+    </footer>
+  </body>
+</html>
